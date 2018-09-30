@@ -1,25 +1,5 @@
 #include "radioSort.h"
 
-//设置属性结点
-void setMyAttribute(Attribute *attr,char *name,char *val){
-	attr->name = name;
-	attr->value = val;
-}
-
-//设置属性结点
-void setMyAttrNode(AttrNode *atnode,Attribute attr){
-	size_t newSize = (atnode->length+1) * sizeof(Attribute);
-	void *nptr = realloc(atnode->data, newSize);
-	
-	if( nptr ){
-		atnode->data[atnode->length++] = attr;
-	}
-}
-
-//访问属性结点
-void visitAttribute(AttrNode *atnode,char *attName,void *setAttr,setData _setData){
-}
-
 //设置keyNode
 void setKeyNode(Wrap *target,int len){
 	target->data = (KeyNode*)malloc(len * sizeof(KeyNode));
@@ -53,24 +33,64 @@ void setKeyArray(Wrap *target,char *keys){
 	}
 }
 
-//使用属性列表初始化包裹数组
-void initMyWrap(Wrap *target,AttrNode *atnode){
-	for(int i = 0; i < atnode->length; ++i){
-		if( strcmp(atnode->data[i].name, "radio") ){
-			int nlen = atoi(atnode->data[i].value);
-			setKeyNode(target, nlen);
-		}else if( strcmp(atnode->data[i].name, "keynum") ){
-			target->keyLayer = atoi(atnode->data[i].value);
-		}else if( strcmp(atnode->data[i].name, "data") ){
-			setKeyArray(target, atnode->data[i].value);
+//基数排序
+void radioSort(Wrap *tar){
+	for(int i = tar->keyLayer-1; i >= 0; --i){
+		assignKey(i, tar->keyLayer, tar->data, tar->keyArr, tar->lenKey);
+		collection(tar->data, tar->lenData, tar->keyArr);
+	}
+}
+
+//比较关键字
+int cmpKeyWord(char *prev,char *next,int pos,int len){
+	int result = 0;
+
+	if( pos == 0 ){
+		result = prev[pos+1] - next[pos+1];
+	}else if( pos == len - 1 ){
+		result = prev[pos-1] - next[pos-1];
+	}
+
+	return result;
+}
+
+//关键字分发
+void assignKey(int curLayer,int layer,KeyNode *data,char **keyArr,int klen){
+	for(int i = 0; i < klen; ++i){
+		char indexChar = keyArr[i][curLayer];
+		int index = atoi(&indexChar);
+		KeyNode *curNode = (KeyNode*)malloc(sizeof(KeyNode));
+
+		if( curNode ){
+			curNode->next = NULL;
+			curNode->key = keyArr[i];
+
+			if( !data[index].next ){
+				data[index].next = curNode;
+			}else{//插入到适当位置
+				KeyNode *prev = data + index,
+						*cur = prev->next;
+
+				for( ; cur && cmpKeyWord(curNode->key,cur->key,curLayer,layer); prev = cur,cur = cur->next);
+				curNode->next = cur;
+				prev->next = curNode;
+			}
 		}
 	}
 }
 
-//关键字分发
-void assignKey(){
-}
-
 //搜集新序列
-void collection(){
+void collection(KeyNode *data,int knLen,char **keyArr){
+	int curPos = 0;
+
+	for(int i = 0; i < knLen; ++i){
+		KeyNode *temp = data[i].next,*frep = NULL;
+		while( temp ){
+			frep = temp;
+			keyArr[curPos++] = temp->key;
+			temp = temp->next;
+			free(frep);
+		}
+		data[i].next = NULL;
+	}
 }

@@ -1,20 +1,8 @@
-#ifndef _MYRADIO_SORT
-#define _MYRADIO_SORT
+#ifndef _MYRADIO__SORT
+#define _MYRADIO__SORT
 
 #include <stdlib.h>
 #include <string.h>
-
-typedef void (*setData)(void *data);
-
-typedef struct{
-	char *name;
-	char *value;
-}Attribute;
-
-typedef struct{
-	Attribute *data;
-	int length;
-}AttrNode;
 
 typedef struct keyNode{
 	char *key;
@@ -29,28 +17,22 @@ typedef struct{
 	int keyLayer;
 }Wrap;
 
-//设置属性结点
-void setMyAttribute(Attribute *attr,char *name,char *val);
-
-//设置属性结点
-void setMyAttrNode(AttrNode *atnode,Attribute attr);
-
-//访问属性结点
-void visitAttribute(AttrNode *atnode,char *attName,void *setAttr,setData _setData);
-
 //设置keyNode
 void setKeyNode(Wrap *target,int len);
 
 //设置keyArr
 void setKeyArray(Wrap *target,char *keys);
 
-//使用属性列表初始化包裹数组
-void initMyWrap(Wrap *target,AttrNode *atnode);
+//基数排序
+void radioSort(Wrap *tar);
+
+//比较关键字
+int cmpKeyWord(char *prev,char *next,int pos,int len);
 
 //关键字分发
-void assignKey();
+void assignKey(int curlayer,int layer,KeyNode *data,char **keyArr,int klen);
 
 //搜集新序列
-void collection();
+void collection(KeyNode *data,int knLen,char **keyArr);
 
 #endif

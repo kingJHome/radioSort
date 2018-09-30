@@ -1,4 +1,4 @@
-files = radioSort.h test.c
+files = radioSort.c test.c
 
 test: $(files)
 	gcc -o $@ $^
